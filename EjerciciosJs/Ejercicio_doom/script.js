@@ -64,21 +64,155 @@ function calcularMonedas() {
     let conversion = tiposDeCambio[deMoneda][aMoneda];
     let rest = cambio * conversion;
 
-    document.getElementById("solucion").textContent = "$"+ rest.toFixed(2) ;
+    document.getElementById("solucion").textContent = "$" + rest.toFixed(2);
 
 
 }
 
 //BLOG DE NOTAS
 
-let array=[]
-
-let agregarNotas = {
-    id:1,
-    titulo:"sacar bsura",
+let arrayNotas = [{
+    id: 1,
+    titulo: "sacar bsura",
     texto: "mi mama me  retar si no lohago",
-    realizada:false
+    realizada: false
 
-}   
+},
+{
+    id: 2,
+    titulo: "ejercicio",
+    texto: "salir a correr",
+    realizada: false
+},
+{
+    id: 3,
+    titulo: "comer",
+    texto: "hacer el desayuo",
+    realizada: false
+},
+{
+    id: 4,
+    titulo: "barrer la casa",
+    texto: "mi mama me  retar si no lohago",
+    realizada: false
+}
+]
+let idGlobal = 4;
 
+function pintarNotas() {
+    let contenedor = document.getElementById('contenedorNotas');
+    contenedor.innerHTML = '';
+
+    if (arrayNotas.length === 0) {
+        contenedor.innerHTML = "<p>No hay notas para mostrar</p>";
+        return;
+    }
+
+
+    arrayNotas.forEach(function (nota) {
+        let notaCard = document.createElement('div');
+        notaCard.className = 'card m-3';
+        notaCard.style.width = "18rem";
+        notaCard.innerHTML = `
+            <div class="card-body">
+                <h5 class="card-title">${nota.titulo}</h5>
+                <p class="card-text">${nota.texto}</p>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" onclick="marcarRealizada(${nota.id})" ${nota.realizada ? 'checked' : ''}>
+                    <label class="form-check-label">Realizada</label>
+                </div>
+                <button class="btn btn-danger mt-2" onclick="borrarNota(${nota.id})">Borrar Nota</button>
+            </div>
+        `;
+        contenedor.appendChild(notaCard);
+    });
+}
+pintarNotas();
+
+function guardarNota() {
+    let titulo = document.getElementById('titulo').value;
+    let texto = document.getElementById('texto').value;
+
+    if (titulo === '' || texto === '') {
+        alert('Que quieres que guarde si no escribes nada :(');
+        return;
+    }
+
+    idGlobal++;
+    let nuevaNota = {
+        id: idGlobal,
+        titulo: titulo,
+        texto: texto,
+        realizada: false
+    };
+    arrayNotas.push(nuevaNota);
+    limpiarCampos();
+    pintarNotas();
+}
+
+function limpiarCampos() {
+    document.getElementById('titulo').value = '';
+    document.getElementById('texto').value = '';
+}
+
+function borrarNota(id) {
+    arrayNotas = arrayNotas.filter(function (nota) {
+        return nota.id !== id;
+    });
+    pintarNotas();
+}
+
+function marcarRealizada(id) {
+    let nota = arrayNotas.find(function(nota) {
+        return nota.id === id;
+    });
+    if (nota) {
+        nota.realizada = !nota.realizada;
+        let tituloElement = document.getElementById(`titulo-${id}`);
+        let textoElement = document.getElementById(`texto-${id}`);
+        if (nota.realizada) {
+            tituloElement.classList.add('textoRealizado');
+            textoElement.classList.add('textoRealizado');
+        } else {
+            tituloElement.classList.remove('textoRealizado');
+            textoElement.classList.remove('textoRealizado');
+        }
+    }
+} 
+function filtrarNotas() {
+    let textoBusqueda = document.getElementById('search').value.toLowerCase();
+    let filtroRealizadas = document.getElementById('filtroRealizadas').checked;
+
+    let notasFiltradas = arrayNotas.filter(function (nota) {
+        let coincideTexto = nota.titulo.toLowerCase().includes(textoBusqueda) || nota.texto.toLowerCase().includes(textoBusqueda);
+        let coincideRealizada = !filtroRealizadas || (filtroRealizadas && nota.realizada);
+        return coincideTexto && coincideRealizada;
+    });
+
+    let contenedor = document.getElementById('contenedorNotas');
+    contenedor.innerHTML = '';
+
+    if (notasFiltradas.length === 0) {
+        contenedor.innerHTML = "<p>No as echo un cul* , apurele</p>";
+        return;
+    }
+
+    notasFiltradas.forEach(function (nota) {
+        let notaCard = document.createElement('div');
+        notaCard.className = 'card nota';
+        notaCard.style.width = "18rem";
+        notaCard.innerHTML = `
+            <div class="card-body">
+                <h5 class="card-title ${nota.realizada ? 'textoRealizado' : ''}" id="titulo-${nota.id}">${nota.titulo}</h5>
+                <p class="card-text ${nota.realizada ? 'textoRealizado' : ''}" id="texto-${nota.id}">${nota.texto}</p>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" onclick="marcarRealizada(${nota.id})" ${nota.realizada ? 'checked' : ''}>
+                    <label class="form-check-label">Realizada</label>
+                </div>
+                <button class="btn btn-danger mt-2" onclick="borrarNota(${nota.id})">Borrar Nota</button>
+            </div>
+        `;
+        contenedor.appendChild(notaCard);
+    });
+}
 
